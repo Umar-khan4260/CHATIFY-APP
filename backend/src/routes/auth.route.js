@@ -1,22 +1,18 @@
-import express from 'express';
+import express from "express";
+import { signup } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.get('/login', (req, res) => {
-    // Handle login logic here  
-    res.send('Login successful');
-}
-);
-
-router.get('/register', (req, res) => {
-    // Handle registration logic here  
-    res.send('Registration successful');
+router.post("/login", (req, res) => {
+  // Handle login logic here
+  res.send("Login successful");
 });
 
-router.get('/logout', (req, res) => {
-    // Handle logout logic here  
-    res.send('Logout successful');
-});
+router.post("/signup", signup);
 
+router.get("/logout", (req, res) => {
+  // Handle logout logic here
+  res.send("Logout successful");
+});
 
 export default router;
