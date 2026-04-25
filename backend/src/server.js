@@ -1,6 +1,7 @@
 //const express = require('express');
 import express from 'express';
 import { ENV } from './lib/env.js';
+import cookieParser from 'cookie-parser';
 
 import path from 'path';
 
@@ -14,6 +15,7 @@ const app = express();
 const __dirname =path.resolve();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/auth",authRoutes)
 app.use("/api/message",messageRoutes)
