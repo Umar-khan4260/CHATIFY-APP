@@ -1,15 +1,32 @@
-import React from "react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useChatStore } from "../store/useChatStore.js";
+import BorderAnimatedContainer from "../components/BorderAnimatedContainer.jsx";
+import ProfileHeader from "../components/ProfileHeader.jsx";
+import Activetabswitch from "../components/Activetabswitch";
+import ChatsList from "../components/ChatsList";
+import ContactList from "../components/ContactList";
+import ChatContainer from "../components/ChatContainer";
+import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 
 function ChatPage() {
-  const { logout } = useAuthStore();
+  const { activeTab, selectedUser } = useChatStore();
 
   return (
-    <div className="z-10">
-      <h1 className="text-3xl font-bold text-white p-3">Welcome to Chatify!</h1>
-      <button onClick={logout} className="auth-btn" type="submit" >
-        "Logout"
-      </button>
+    <div className="relative w-full max-w-6xl h-[800px]">
+      <BorderAnimatedContainer>
+        {/*LEFT SIDE*/}
+        <div className="w-80 bg-slate-800/50 backdrop-blur-sm flex flex-col">
+          <ProfileHeader />
+          <Activetabswitch />
+          <div className="flex-l overflow-y-auto p-4 space-y-2">
+            {activeTab === "chats" ? <ChatsList /> : <ContactList />}
+          </div>
+        </div>
+
+        {/*RIGHT SIDE*/}
+        <div className="flex-l flex flex-col bg-slate-900/50 backdrop-blur-sm">
+          {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
+        </div>
+      </BorderAnimatedContainer>
     </div>
   );
 }
