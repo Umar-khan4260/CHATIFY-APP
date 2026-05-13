@@ -123,12 +123,7 @@ export const updateprofile = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
-    res
-      .status(200)
-      .json({
-        message: "Profile picture updated successfully",
-        profilePic: uploadResponse.secure_url,
-      });
+    res.status(200).json(updatedUser);
   } catch (error) {
     console.error(`Error: ${error.message}`);
     res.status(500).json({ error: "Internal Server Error" });
