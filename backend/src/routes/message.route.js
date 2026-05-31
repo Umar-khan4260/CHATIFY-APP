@@ -18,6 +18,6 @@ route.get("/chats", getChatPartners);
 
 route.get("/:id", getMessagesByUserId);
 
-route.post("/chats/:id", sendMessage);
+route.post("/send/:id", sendMessage);
 
 export default route;
