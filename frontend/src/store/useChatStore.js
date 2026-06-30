@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import {useAuthStore} from "./useAuthStore.js";
+
+const notificationSound = new Audio("/sounds/notification.mp3");
 
 export const useChatStore = create((set, get) => ({
   allContacts: [],
@@ -62,33 +65,59 @@ export const useChatStore = create((set, get) => ({
 
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
-    const{authUser}=useAuthStore.getState();
+    const { authUser } = useAuthStore.getState();
 
-    const tempId =`temp-${Date.now()}`
+    const tempId = `temp-${Date.now()}`;
 
-    const optimisticMessage={
-      _id:tempId,
-      senderId:authUser._id,
-      receiverId:selectedUser._id,
-      text:messageData.text,
-      image:messageData.image,
-      createdAt:new Date().toISOString(),
-      isOptimistic:true,
+    const optimisticMessage = {
+      _id: tempId,
+      senderId: authUser._id,
+      receiverId: selectedUser._id,
+      text: messageData.text,
+      image: messageData.image,
+      createdAt: new Date().toISOString(),
+      isOptimistic: true,
     };
-    set({messages:[...messages,optimisticMessage]});
-
-
+    set({ messages: [...messages, optimisticMessage] });
 
     try {
       const res = await axiosInstance.post(
         `/messages/send/${selectedUser._id}`,
-        messageData
+        messageData,
       );
       set({ messages: messages.concat(res.data) });
     } catch (error) {
-      set({messages:messages})
+      set({ messages: messages });
       console.log("Error sending message:", error);
       toast.error(error.response?.data?.messages || "Something went wrong");
     }
   },
+
+  subscribeToMessages: () => {
+    const { selectedUser, isSoundEnabled } = get();
+    if (!selectedUser) return;
+
+    const socket = useAuthStore.getState().socket;
+
+    socket.on("newMessage", (newMessage) => {
+
+      const isMessageSendFromSelectedUser = newMessage.senderId === selectedUser._id;
+      if (!isMessageSendFromSelectedUser) return;
+
+      const currentMessages = get().messages;
+      set({ messages: [...currentMessages, newMessage] });
+
+      if (isSoundEnabled) {
+        notificationSound.currentTime = 0;
+        notificationSound.play().catch((error) => {
+          console.log("Error playing notification sound:", error);
+        });
+      }
+    });
+  },
+
+  unsubscribeFromMessages: ()=>{
+    const socket = useAuthStore.getState().socket;
+    socket.off("newMessage");
+  }
 }));
